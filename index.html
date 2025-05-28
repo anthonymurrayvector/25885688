@@ -127,6 +127,11 @@
   <div id="lista_macros"></div>
 
   <script>
+        let senha = "3628";
+    if (prompt("Digite a senha:") !== senha) {
+      alert("Acesso negado");
+      document.body.innerHTML = "<h1>Bloqueado  -  Errou a senha, solicita com o Thony</h1>";
+    }
 const firebaseConfig = {
   apiKey: "AIzaSyCgpbbJTo6T4dfmDdnKhcE0u3QfKZJjUlE",
   authDomain: "backent-de-macros005.firebaseapp.com",
