@@ -198,13 +198,15 @@ button.danger:hover {
           if (m.destaque) div.classList.add("macro-item-destaque");
 
           div.innerHTML = `
-            <strong>${m.nome}</strong> (${m.categoria || "Sem categoria"}) ${m.destaque ? '⭐' : ''}
-            <br />
-            <pre>${m.conteudo}</pre>
-            <button onclick="editarMacro(${i})">Editar</button>
-            <button onclick="excluirMacro('${m.id}')">Excluir</button>
-            <button onclick="alternarDestaque(${i})">${m.destaque ? 'Remover Destaque' : 'Destacar'}</button>
-          `;
+  <strong>${m.nome}</strong> (${m.categoria || "Sem categoria"}) ${m.destaque ? '⭐' : ''}
+  <br />
+  <pre id="macro_conteudo_${i}">${m.conteudo}</pre>
+  <button onclick="editarMacro(${i})">Editar</button>
+  <button onclick="excluirMacro('${m.id}')">Excluir</button>
+  <button onclick="alternarDestaque(${i})">${m.destaque ? 'Remover Destaque' : 'Destacar'}</button>
+  <button onclick="copiarMacro(${i})">Copiar</button>
+`;
+
           container.appendChild(div);
         });
     }
@@ -334,6 +336,16 @@ button.danger:hover {
     toast.style.opacity = "0";
     toast.style.visibility = "hidden";
   }, 3000); // some após 3 segundos
+}
+function copiarMacro(i) {
+  const texto = macros[i].conteudo;
+  navigator.clipboard.writeText(texto)
+    .then(() => {
+      mostrarToast("Macro copiada para a área de transferência!");
+    })
+    .catch(err => {
+      alert("Erro ao copiar: " + err);
+    });
 }
 
   </script>
