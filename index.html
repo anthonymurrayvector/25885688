@@ -1,15 +1,63 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Gerenciador de Macros com Firebase</title>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-   .macro-item { border: 1px solid #ccc; padding: 10px; margin: 10px 0; border-radius: 8px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+      color: #444;
+    }
+
+    #formMacro {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      margin-bottom: 30px;
+    }
+
+    #busca {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
     button {
       margin-top: 10px;
       margin-right: 5px;
@@ -21,129 +69,77 @@
       cursor: pointer;
       background: linear-gradient(135deg, #007BFF, #0056b3);
       transition: background 0.3s ease, transform 0.2s ease;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
-      body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #f4f6f8;
-    color: #333;
-    padding: 20px;
-    max-width: 800px;
-    margin: auto;
-  }
 
-  h1 {
-    text-align: center;
-    color: #222;
-    margin-bottom: 30px;
-  }
+    .macro-item {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
 
-  input[type="text"],
-  textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 6px 0 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-size: 14px;
-  }
-
-  label {
-    font-weight: bold;
-    display: block;
-    margin-top: 10px;
-    color: #444;
-  }
-
-  #formMacro {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    margin-bottom: 30px;
-  }
-
-  #busca {
-    padding: 10px;
-    width: 100%;
-    margin-bottom: 20px;
-    font-size: 14px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-  }
-
-  #lista_macros {
-    margin-top: 20px;
-  }
-
-  .macro-item {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-
-  .macro-item strong {
-    font-size: 16px;
-    color: #222;
-  }
-
-  .macro-item pre {
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 6px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin-top: 8px;
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    color: #333;
-  }
-
-  input[type="file"] {
-    margin-top: 15px;
-    margin-bottom: 20px;
-  }
     .macro-item-destaque {
-  border-left: 6px solid #28a745;
-  background-color: #e8f5e9;
-}
+      border-left: 6px solid #28a745;
+      background-color: #e8f5e9;
+    }
 
+    .macro-item pre {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #333;
+    }
+
+    input[type="file"] {
+      margin-top: 15px;
+      margin-bottom: 20px;
+    }
+
+    #filtro_destaques {
+      margin-bottom: 15px;
+    }
   </style>
 </head>
 <body>
   <h1>Gerenciador de Macros</h1>
 
   <input type="text" id="busca" placeholder="Buscar macro" oninput="buscarMacros()" />
+  <label><input type="checkbox" id="filtro_destaques" onchange="exibirMacros()" /> Mostrar apenas destaques</label>
 
   <form id="formMacro">
     <input type="hidden" id="index_edicao" />
-    <label>Nome da Macro: <input type="text" id="nome_macro" required /></label><br />
-    <label>Categoria da Macro: <input type="text" id="categoria_macro" /></label><br />
-    <label>Macro:<br /><textarea id="conteudo_macro" rows="5" required></textarea></label><br />
+    <label>Nome da Macro: <input type="text" id="nome_macro" required /></label>
+    <label>Categoria da Macro: <input type="text" id="categoria_macro" /></label>
+    <label>Macro:<br /><textarea id="conteudo_macro" rows="5" required></textarea></label>
     <button type="submit">Salvar Macro</button>
     <button type="button" onclick="cancelarEdicao()">Cancelar</button>
   </form>
 
-  <button onclick="exportarMacros()">Exportar</button>
+  <button onclick="exportarMacros()">Exportar JSON</button>
   <button onclick="exportarParaPDF()">Exportar PDF</button>
   <input type="file" onchange="importarMacros(event)" />
 
   <div id="lista_macros"></div>
 
   <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCgpbbJTo6T4dfmDdnKhcE0u3QfKZJjUlE",
-  authDomain: "backent-de-macros005.firebaseapp.com",
-  projectId: "backent-de-macros005",
-  storageBucket: "backent-de-macros005.firebasestorage.app",
-  messagingSenderId: "670876414982",
-  appId: "1:670876414982:web:a1110f57945806a7b13f87",
-  measurementId: "G-MLW0PK8QPM"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyCgpbbJTo6T4dfmDdnKhcE0u3QfKZJjUlE",
+      authDomain: "backent-de-macros005.firebaseapp.com",
+      projectId: "backent-de-macros005",
+      storageBucket: "backent-de-macros005.firebasestorage.app",
+      messagingSenderId: "670876414982",
+      appId: "1:670876414982:web:a1110f57945806a7b13f87",
+      measurementId: "G-MLW0PK8QPM"
+    };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const ref = db.collection("macros");
@@ -158,22 +154,28 @@ const firebaseConfig = {
 
     function exibirMacros() {
       const busca = document.getElementById("busca").value.toLowerCase();
+      const soDestaques = document.getElementById("filtro_destaques").checked;
       const container = document.getElementById("lista_macros");
       container.innerHTML = "";
-      macros.filter(m => m.nome.toLowerCase().includes(busca)).forEach((m, i) => {
-        const div = document.createElement("div");
-       div.className = "macro-item";
-if (m.nome.toLowerCase().includes("importante")) {
-  div.classList.add("macro-item-destaque");
-}
-        div.innerHTML = 
-          <strong>${m.nome}</strong> (${m.categoria || "Sem categoria"})<br />
-          <pre>${m.conteudo}</pre>
-          <button onclick="editarMacro(${i})">Editar</button>
-          <button onclick="excluirMacro('${m.id}')">Excluir</button>
-        ;
-        container.appendChild(div);
-      });
+
+      macros
+        .filter(m => m.nome.toLowerCase().includes(busca))
+        .filter(m => !soDestaques || m.destaque)
+        .forEach((m, i) => {
+          const div = document.createElement("div");
+          div.className = "macro-item";
+          if (m.destaque) div.classList.add("macro-item-destaque");
+
+          div.innerHTML = `
+            <strong>${m.nome}</strong> (${m.categoria || "Sem categoria"}) ${m.destaque ? '⭐' : ''}
+            <br />
+            <pre>${m.conteudo}</pre>
+            <button onclick="editarMacro(${i})">Editar</button>
+            <button onclick="excluirMacro('${m.id}')">Excluir</button>
+            <button onclick="alternarDestaque(${i})">${m.destaque ? 'Remover Destaque' : 'Destacar'}</button>
+          `;
+          container.appendChild(div);
+        });
     }
 
     document.getElementById("formMacro").onsubmit = async (e) => {
@@ -184,9 +186,12 @@ if (m.nome.toLowerCase().includes("importante")) {
       const index = document.getElementById("index_edicao").value;
 
       if (index) {
-        await ref.doc(macros[index].id).set({ nome, categoria, conteudo });
+        await ref.doc(macros[index].id).set({
+          nome, categoria, conteudo,
+          destaque: macros[index].destaque || false
+        });
       } else {
-        await ref.add({ nome, categoria, conteudo });
+        await ref.add({ nome, categoria, conteudo, destaque: false });
       }
 
       document.getElementById("formMacro").reset();
@@ -232,7 +237,12 @@ if (m.nome.toLowerCase().includes("importante")) {
           const data = JSON.parse(e.target.result);
           for (const m of data) {
             if (m.nome && m.conteudo) {
-              await ref.add({ nome: m.nome, categoria: m.categoria || "", conteudo: m.conteudo });
+              await ref.add({
+                nome: m.nome,
+                categoria: m.categoria || "",
+                conteudo: m.conteudo,
+                destaque: m.destaque || false
+              });
             }
           }
           carregarMacros();
@@ -243,40 +253,42 @@ if (m.nome.toLowerCase().includes("importante")) {
       reader.readAsText(file);
     }
 
-    carregarMacros();
+    async function alternarDestaque(i) {
+      const macro = macros[i];
+      await ref.doc(macro.id).update({ destaque: !macro.destaque });
+      carregarMacros();
+    }
+
     async function exportarParaPDF() {
-    const container = document.getElementById("lista_macros");
+      const container = document.getElementById("lista_macros");
+      const clone = container.cloneNode(true);
+      clone.querySelectorAll("button").forEach(btn => btn.remove());
 
-    // Clonar para evitar que botões apareçam no PDF
-    const clone = container.cloneNode(true);
-    clone.querySelectorAll("button").forEach(btn => btn.remove());
+      const tempDiv = document.createElement("div");
+      tempDiv.style.position = "absolute";
+      tempDiv.style.left = "-9999px";
+      tempDiv.appendChild(clone);
+      document.body.appendChild(tempDiv);
 
-    // Cria um div temporário invisível
-    const tempDiv = document.createElement("div");
-    tempDiv.style.position = "absolute";
-    tempDiv.style.left = "-9999px";
-    tempDiv.appendChild(clone);
-    document.body.appendChild(tempDiv);
+      const canvas = await html2canvas(clone, { backgroundColor: "#fff" });
+      const imgData = canvas.toDataURL("image/png");
 
-    // Captura o conteúdo como imagem
-    const canvas = await html2canvas(clone, { backgroundColor: "#fff" });
-    const imgData = canvas.toDataURL("image/png");
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF("p", "mm", "a4");
 
-    // Gera o PDF
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgProps = pdf.getImageProperties(imgData);
+      const ratio = pageWidth / imgProps.width;
+      const imgHeight = imgProps.height * ratio;
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgProps = pdf.getImageProperties(imgData);
-    const ratio = pageWidth / imgProps.width;
-    const imgHeight = imgProps.height * ratio;
+      pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
+      pdf.save("macros.pdf");
 
-    pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
-    pdf.save("macros.pdf");
+      tempDiv.remove();
+    }
 
-    tempDiv.remove(); // Limpa
-  }
+    carregarMacros();
   </script>
 </body>
 </html>
