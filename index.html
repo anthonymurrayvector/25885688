@@ -71,7 +71,17 @@
       transition: background 0.3s ease, transform 0.2s ease;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
-
+     button:hover {
+      background-color: #0056b3;
+    }
+button {
+  background: linear-gradient(135deg, #007BFF, #0056b3);
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+button:hover {
+  background: linear-gradient(135deg, #0056b3, #004494);
+  transform: translateY(-1px);
     .macro-item {
       background: #fff;
       border: 1px solid #e0e0e0;
@@ -80,12 +90,16 @@
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-
+button.danger {
+  background: #dc3545;
+}
     .macro-item-destaque {
       border-left: 6px solid #28a745;
       background-color: #e8f5e9;
     }
-
+button.danger:hover {
+  background: #a71d2a;
+}
     .macro-item pre {
       background: #f8f9fa;
       padding: 10px;
@@ -120,7 +134,7 @@
     <label>Categoria da Macro: <input type="text" id="categoria_macro" /></label>
     <label>Macro:<br /><textarea id="conteudo_macro" rows="5" required></textarea></label>
     <button type="submit">Salvar Macro</button>
-    <button type="button" onclick="cancelarEdicao()">Cancelar</button>
+    <button type="button" onclick="cancelarEdicao()">Cancelar Edição</button>
   </form>
 
   <button onclick="exportarMacros()">Exportar JSON</button>
