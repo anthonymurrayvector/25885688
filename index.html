@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerenciador de Macros Firebase</title>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .macro-item { border: 1px solid #ccc; padding: 10px; margin: 10px 0; border-radius: 8px; }
+    button { margin: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Gerenciador de Macros</h1>
+
+  <input type="text" id="busca" placeholder="Buscar macro" oninput="buscarMacros()" />
+
+  <form id="formMacro">
+    <input type="hidden" id="index_edicao" />
+    <label>Nome da Macro: <input type="text" id="nome_macro" required /></label><br />
+    <label>Categoria da Macro: <input type="text" id="categoria_macro" /></label><br />
+    <label>Macro:<br /><textarea id="conteudo_macro" rows="5" required></textarea></label><br />
+    <button type="submit">Salvar Macro</button>
+    <button type="button" onclick="cancelarEdicao()">Cancelar</button>
+  </form>
+
+  <button onclick="exportarMacros()">Exportar</button>
+  <input type="file" onchange="importarMacros(event)" />
+
+  <div id="lista_macros"></div>
+
+  <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCgpbbJTo6T4dfmDdnKhcE0u3QfKZJjUlE",
+  authDomain: "backent-de-macros005.firebaseapp.com",
+  projectId: "backent-de-macros005",
+  storageBucket: "backent-de-macros005.firebasestorage.app",
+  messagingSenderId: "670876414982",
+  appId: "1:670876414982:web:a1110f57945806a7b13f87",
+  measurementId: "G-MLW0PK8QPM"
+};
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const ref = db.collection("macros");
+
+    let macros = [];
+
+    async function carregarMacros() {
+      const snapshot = await ref.get();
+      macros = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      exibirMacros();
+    }
+
+    function exibirMacros() {
+      const busca = document.getElementById("busca").value.toLowerCase();
+      const container = document.getElementById("lista_macros");
+      container.innerHTML = "";
+      macros.filter(m => m.nome.toLowerCase().includes(busca)).forEach((m, i) => {
+        const div = document.createElement("div");
+        div.className = "macro-item";
+        div.innerHTML = `
+          <strong>${m.nome}</strong> (${m.categoria || "Sem categoria"})<br />
+          <pre>${m.conteudo}</pre>
+          <button onclick="editarMacro(${i})">Editar</button>
+          <button onclick="excluirMacro('${m.id}')">Excluir</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    document.getElementById("formMacro").onsubmit = async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome_macro").value.trim();
+      const categoria = document.getElementById("categoria_macro").value.trim();
+      const conteudo = document.getElementById("conteudo_macro").value.trim();
+      const index = document.getElementById("index_edicao").value;
+
+      if (index) {
+        await ref.doc(macros[index].id).set({ nome, categoria, conteudo });
+      } else {
+        await ref.add({ nome, categoria, conteudo });
+      }
+
+      document.getElementById("formMacro").reset();
+      document.getElementById("index_edicao").value = "";
+      carregarMacros();
+    };
+
+    function editarMacro(i) {
+      const m = macros[i];
+      document.getElementById("nome_macro").value = m.nome;
+      document.getElementById("categoria_macro").value = m.categoria;
+      document.getElementById("conteudo_macro").value = m.conteudo;
+      document.getElementById("index_edicao").value = i;
+    }
+
+    async function excluirMacro(id) {
+      if (confirm("Deseja excluir esta macro?")) {
+        await ref.doc(id).delete();
+        carregarMacros();
+      }
+    }
+
+    function cancelarEdicao() {
+      document.getElementById("formMacro").reset();
+      document.getElementById("index_edicao").value = "";
+    }
+
+    function buscarMacros() { exibirMacros(); }
+
+    function exportarMacros() {
+      const blob = new Blob([JSON.stringify(macros)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "macros_exportadas.json";
+      a.click();
+    }
+
+    function importarMacros(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          for (const m of data) {
+            if (m.nome && m.conteudo) {
+              await ref.add({ nome: m.nome, categoria: m.categoria || "", conteudo: m.conteudo });
+            }
+          }
+          carregarMacros();
+        } catch (err) {
+          alert("Erro ao importar: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    carregarMacros();
+  </script>
+</body>
+</html>
