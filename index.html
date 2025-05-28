@@ -217,20 +217,19 @@ function exibirMacros() {
       div.className = "macro-item";
       if (m.destaque) div.classList.add("macro-item-destaque");
 
-          div.innerHTML = `
-  <strong>${m.nome}</strong> (${m.categoria || "Sem categoria"}) ${m.destaque ? '⭐' : ''}
-  <br />
-  <pre id="macro_conteudo_${i}">${m.conteudo}</pre>
-  <button onclick="copiarMacro(${i})">Copiar</button>
-  <button onclick="editarMacro(${i})">Editar</button>
-  <button onclick="excluirMacro('${m.id}')">Excluir</button>
-  <button onclick="alternarDestaque(${i})">${m.destaque ? 'Remover Destaque' : 'Destacar'}</button>
-`;
-
-          container.appendChild(div);
-        });
-    }
-
+      div.innerHTML = `
+        <strong>${m.nome}</strong> ${m.destaque ? '⭐' : ''}
+        <br />
+        <pre id="macro_conteudo_${i}">${m.conteudo}</pre>
+        <button onclick="editarMacro(${macros.indexOf(m)})">Editar</button>
+        <button onclick="excluirMacro('${m.id}')">Excluir</button>
+        <button onclick="alternarDestaque(${macros.indexOf(m)})">${m.destaque ? 'Remover Destaque' : 'Destacar'}</button>
+        <button onclick="copiarMacro(${macros.indexOf(m)})">Copiar</button>
+      `;
+      container.appendChild(div);
+    });
+  });
+}
     document.getElementById("formMacro").onsubmit = async (e) => {
       e.preventDefault();
       const nome = document.getElementById("nome_macro").value.trim();
