@@ -5,55 +5,106 @@
   <title>Gerenciador de Macros com Firebase</title>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
-      color: #333;
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
-    }
-    .macro-item {
-      background: #e6fff2;
-      border: 1px solid #b2dfdb;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-      position: relative;
-    }
-    .macro-item strong {
-      font-size: 16px;
-      color: #004d40;
-    }
-    .macro-item pre {
-      background: #ffffff;
-      padding: 10px;
-      border-radius: 6px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      margin-top: 8px;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      color: #333;
-    }
-    .macro-buttons {
+    body { font-family: Arial, sans-serif; padding: 20px; }
+   .macro-item { border: 1px solid #ccc; padding: 10px; margin: 10px 0; border-radius: 8px; }
+    button {
       margin-top: 10px;
-    }
-    .macro-buttons button {
-      margin: 2px;
-      padding: 6px 10px;
-      font-size: 13px;
-      border-radius: 6px;
+      margin-right: 5px;
+      padding: 8px 12px;
+      background-color: #007BFF;
+      color: #fff;
       border: none;
+      border-radius: 4px;
       cursor: pointer;
+      background: linear-gradient(135deg, #007BFF, #0056b3);
+      transition: background 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .favorite {
-      color: gold;
-      font-weight: bold;
-    }
+      body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+  }
+
+  h1 {
+    text-align: center;
+    color: #222;
+    margin-bottom: 30px;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+
+  label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+    color: #444;
+  }
+
+  #formMacro {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+  }
+
+  #busca {
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  #lista_macros {
+    margin-top: 20px;
+  }
+
+  .macro-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .macro-item strong {
+    font-size: 16px;
+    color: #222;
+  }
+
+  .macro-item pre {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin-top: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #333;
+  }
+
+  input[type="file"] {
+    margin-top: 15px;
+    margin-bottom: 20px;
+  }
   </style>
 </head>
 <body>
@@ -70,21 +121,30 @@
     <button type="button" onclick="cancelarEdicao()">Cancelar</button>
   </form>
 
-  <button onclick="exportarPDF()">Exportar PDF</button>
+  <button onclick="exportarMacros()">Exportar</button>
   <input type="file" onchange="importarMacros(event)" />
 
   <div id="lista_macros"></div>
 
   <script>
-    const firebaseConfig = { /* suas configurações */ };
+const firebaseConfig = {
+  apiKey: "AIzaSyCgpbbJTo6T4dfmDdnKhcE0u3QfKZJjUlE",
+  authDomain: "backent-de-macros005.firebaseapp.com",
+  projectId: "backent-de-macros005",
+  storageBucket: "backent-de-macros005.firebasestorage.app",
+  messagingSenderId: "670876414982",
+  appId: "1:670876414982:web:a1110f57945806a7b13f87",
+  measurementId: "G-MLW0PK8QPM"
+};
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const ref = db.collection("macros");
+
     let macros = [];
 
     async function carregarMacros() {
       const snapshot = await ref.get();
-      macros = snapshot.docs.map(doc => ({ id: doc.id, favorito: false, ...doc.data() }));
+      macros = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       exibirMacros();
     }
 
@@ -95,17 +155,12 @@
       macros.filter(m => m.nome.toLowerCase().includes(busca)).forEach((m, i) => {
         const div = document.createElement("div");
         div.className = "macro-item";
-        div.innerHTML = `
-          <strong class="${m.favorito ? 'favorite' : ''}">${m.nome}</strong> (${m.categoria || "Sem categoria"})<br />
+        div.innerHTML = 
+          <strong>${m.nome}</strong> (${m.categoria || "Sem categoria"})<br />
           <pre>${m.conteudo}</pre>
-          <div class="macro-buttons">
-            <button onclick="editarMacro(${i}); window.scrollTo(0, 0)">Editar</button>
-            <button onclick="excluirMacro('${m.id}')">Excluir</button>
-            <button onclick="copiarMacro('${m.conteudo}')">Copiar</button>
-            <button onclick="backupMacro(${i})">Backup</button>
-            <button onclick="favoritarMacro(${i})">${m.favorito ? '★' : '☆'}</button>
-          </div>
-        `;
+          <button onclick="editarMacro(${i})">Editar</button>
+          <button onclick="excluirMacro('${m.id}')">Excluir</button>
+        ;
         container.appendChild(div);
       });
     }
@@ -150,32 +205,12 @@
 
     function buscarMacros() { exibirMacros(); }
 
-    function copiarMacro(conteudo) {
-      navigator.clipboard.writeText(conteudo);
-      alert("Macro copiada para a área de transferência!");
-    }
-
-    function favoritarMacro(i) {
-      macros[i].favorito = !macros[i].favorito;
-      exibirMacros();
-    }
-
-    function backupMacro(i) {
-      const blob = new Blob([macros[i].conteudo], { type: "text/plain" });
+    function exportarMacros() {
+      const blob = new Blob([JSON.stringify(macros)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `${macros[i].nome}.txt`;
+      a.download = "macros_exportadas.json";
       a.click();
-    }
-
-    function exportarPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      macros.forEach((m, idx) => {
-        doc.text(`${m.nome} (${m.categoria})`, 10, 10 + idx * 20);
-        doc.text(m.conteudo, 10, 20 + idx * 20);
-      });
-      doc.save("macros_exportadas.pdf");
     }
 
     function importarMacros(event) {
