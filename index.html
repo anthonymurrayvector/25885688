@@ -201,10 +201,10 @@ button.danger:hover {
   <strong>${m.nome}</strong> (${m.categoria || "Sem categoria"}) ${m.destaque ? '⭐' : ''}
   <br />
   <pre id="macro_conteudo_${i}">${m.conteudo}</pre>
+  <button onclick="copiarMacro(${i})">Copiar</button>
   <button onclick="editarMacro(${i})">Editar</button>
   <button onclick="excluirMacro('${m.id}')">Excluir</button>
   <button onclick="alternarDestaque(${i})">${m.destaque ? 'Remover Destaque' : 'Destacar'}</button>
-  <button onclick="copiarMacro(${i})">Copiar</button>
 `;
 
           container.appendChild(div);
