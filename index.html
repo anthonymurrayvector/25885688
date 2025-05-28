@@ -347,6 +347,11 @@ function copiarMacro(i) {
       alert("Erro ao copiar: " + err);
     });
 }
+let senha = "3628";
+    if (prompt("Digite a senha:") !== senha) {
+      alert("Acesso negado");
+      document.body.innerHTML = "<h1>Bloqueado  -  Errou a senha, solicita com o Thony</h1>";
+    }
 
   </script>
 </body>
