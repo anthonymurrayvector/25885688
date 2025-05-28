@@ -188,19 +188,34 @@ button.danger:hover {
       exibirMacros();
     }
 
-    function exibirMacros() {
-      const busca = document.getElementById("busca").value.toLowerCase();
-      const soDestaques = document.getElementById("filtro_destaques").checked;
-      const container = document.getElementById("lista_macros");
-      container.innerHTML = "";
+function exibirMacros() {
+  const busca = document.getElementById("busca").value.toLowerCase();
+  const soDestaques = document.getElementById("filtro_destaques").checked;
+  const container = document.getElementById("lista_macros");
+  container.innerHTML = "";
 
-      macros
-        .filter(m => m.nome.toLowerCase().includes(busca))
-        .filter(m => !soDestaques || m.destaque)
-        .forEach((m, i) => {
-          const div = document.createElement("div");
-          div.className = "macro-item";
-          if (m.destaque) div.classList.add("macro-item-destaque");
+  const filtradas = macros
+    .filter(m => m.nome.toLowerCase().includes(busca))
+    .filter(m => !soDestaques || m.destaque);
+
+  const categorias = {};
+  filtradas.forEach(m => {
+    const cat = m.categoria || "Sem categoria";
+    if (!categorias[cat]) categorias[cat] = [];
+    categorias[cat].push(m);
+  });
+
+  Object.keys(categorias).forEach(categoria => {
+    const titulo = document.createElement("h3");
+    titulo.textContent = categoria;
+    titulo.style.marginTop = "30px";
+    titulo.style.color = "#007BFF";
+    container.appendChild(titulo);
+
+    categorias[categoria].forEach((m, i) => {
+      const div = document.createElement("div");
+      div.className = "macro-item";
+      if (m.destaque) div.classList.add("macro-item-destaque");
 
           div.innerHTML = `
   <strong>${m.nome}</strong> (${m.categoria || "Sem categoria"}) ${m.destaque ? '⭐' : ''}
