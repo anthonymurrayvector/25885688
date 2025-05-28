@@ -16,6 +16,13 @@
       max-width: 800px;
       margin: auto;
     }
+.macro-item:not(:last-child)::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background-color: #ccc;
+  margin-top: 20px;
+}
 
     h1 {
       text-align: center;
