@@ -200,12 +200,15 @@
     };
 
     function editarMacro(i) {
-      const m = macros[i];
-      document.getElementById("nome_macro").value = m.nome;
-      document.getElementById("categoria_macro").value = m.categoria;
-      document.getElementById("conteudo_macro").value = m.conteudo;
-      document.getElementById("index_edicao").value = i;
-    }
+  const m = macros[i];
+  document.getElementById("nome_macro").value = m.nome;
+  document.getElementById("categoria_macro").value = m.categoria;
+  document.getElementById("conteudo_macro").value = m.conteudo;
+  document.getElementById("index_edicao").value = i;
+
+  // Rolagem suave para o formulário
+  document.getElementById("formMacro").scrollIntoView({ behavior: "smooth" });
+}
 
     async function excluirMacro(id) {
       if (confirm("Deseja excluir esta macro?")) {
